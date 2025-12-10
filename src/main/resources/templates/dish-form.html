@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dish Form</title>
+</head>
+<body>
+
+<h1 th:if="${dish != null}">Edit Dish</h1>
+<h1 th:if="${dish == null}">Add New Dish</h1>
+
+<!-- EDIT FORM -->
+<form th:if="${dish != null}"
+      th:method="post"
+      th:action="@{/dishes/edit/{id}(id=${dish.id})}">
+
+    <label for="dishId">Dish ID:</label><br/>
+    <input id="dishId" type="text" name="dishId" th:value="${dish.dishId}" required>
+    <br/><br/>
+
+    <label for="name">Name:</label><br/>
+    <input id="name" type="text" name="name" th:value="${dish.name}" required>
+    <br/><br/>
+
+    <label for="cuisine">Cuisine:</label><br/>
+    <input id="cuisine" type="text" name="cuisine" th:value="${dish.cuisine}" required>
+    <br/><br/>
+
+    <label for="prep">Preparation Time (min):</label><br/>
+    <input id="prep" type="number" name="preparationTime" th:value="${dish.preparationTime}" required>
+    <br/><br/>
+
+    <!-- CHEF DROPDOWN -->
+    <label for="chef">Chef:</label><br/>
+    <select id="chef" name="chefId" required>
+        <option value="" disabled>Select Chef</option>
+        <option th:each="chef : ${chefs}"
+                th:value="${chef.id}"
+                th:text="${chef.firstName + ' ' + chef.lastName}"
+                th:selected="${dish.chef != null and dish.chef.id == chef.id}">
+        </option>
+    </select>
+    <br/><br/>
+
+    <button type="submit">Save</button>
+</form>
+
+
+<!-- ADD FORM -->
+<form th:if="${dish == null}"
+      th:method="post"
+      th:action="@{/dishes/add}">
+
+    <label for="dishId2">Dish ID:</label><br/>
+    <input id="dishId2" type="text" name="dishId" required>
+    <br/><br/>
+
+    <label for="name2">Name:</label><br/>
+    <input id="name2" type="text" name="name" required>
+    <br/><br/>
+
+    <label for="cuisine2">Cuisine:</label><br/>
+    <input id="cuisine2" type="text" name="cuisine" required>
+    <br/><br/>
+
+    <label for="prep2">Preparation Time (min):</label><br/>
+    <input id="prep2" type="number" name="preparationTime" required>
+    <br/><br/>
+
+    <!-- CHEF DROPDOWN -->
+    <label for="chef2">Chef:</label><br/>
+    <select id="chef2" name="chefId" required>
+        <option value="" disabled selected>Select Chef</option>
+        <option th:each="chef : ${chefs}"
+                th:value="${chef.id}"
+                th:text="${chef.firstName + ' ' + chef.lastName}">
+        </option>
+    </select>
+    <br/><br/>
+
+    <button type="submit">Save</button>
+</form>
+
+<br/>
+<a href="/dishes">Back to Dish List</a>
+
+</body>
+</html>
