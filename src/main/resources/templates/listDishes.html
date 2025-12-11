@@ -1,68 +1,116 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>All Dishes</title>
-</head>
-<body>
+package mk.ukim.finki.wp.lab.web.controller;
 
-<h1>All Dishes</h1>
+import mk.ukim.finki.wp.lab.model.Dish;
+import mk.ukim.finki.wp.lab.service.ChefService;
+import mk.ukim.finki.wp.lab.service.DishService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-<!-- Error message -->
-<div th:if="${error}">
-    <p style="color:red" th:text="${error}"></p>
-</div>
+import java.util.ArrayList;
+import java.util.List;
 
-<!-- Add new dish -->
-<a href="/dishes/add">
-    <button>Add New Dish</button>
-</a>
+@Controller
+@RequestMapping("/dishes")
+public class DishController {
 
-<br/><br/>
+    private final DishService dishService;
+    private final ChefService chefService;
 
-<table border="1" cellpadding="10" cellspacing="0">
-    <thead>
-    <tr>
-        <th>Dish ID</th>
-        <th>Name</th>
-        <th>Cuisine</th>
-        <th>Preparation Time</th>
-        <th>Chef</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
+    public DishController(DishService dishService, ChefService chefService) {
+        this.dishService = dishService;
+        this.chefService = chefService;
+    }
 
-    <tbody>
-    <tr th:each="d : ${dishes}">
-        <td th:text="${d.dishId}"></td>
-        <td th:text="${d.name}"></td>
-        <td th:text="${d.cuisine}"></td>
-        <td th:text="${d.preparationTime} + ' min'"></td>
+    // LIST ALL DISHES
+    @GetMapping
+    public String getDishesPage(@RequestParam(required = false) String error, Model model,
+                                @RequestParam(required = false) Double rejting) {
 
-        <!-- Chef Name -->
-        <td th:text="${d.chef != null ? d.chef.firstName + ' ' + d.chef.lastName : 'No Chef'}"></td>
 
-        <td>
-            <!-- EDIT -->
-            <a th:href="@{'/dishes/edit/' + ${d.id}}">
-                <button>Edit</button>
-            </a>
+        List<Dish> dishes = new ArrayList<>();
+        if (rejting != null)
+        {
+            dishes = dishService.filterByRating(rejting);
+        }
+        else{
 
-            <!-- DELETE -->
-            <form th:action="@{'/dishes/delete/' + ${d.id}}" method="post" style="display:inline;">
-                <button type="submit">Delete</button>
-            </form>
+            dishes = dishService.listAll();
 
-            <!-- LIKE -->
-            <form th:action="@{'/dishes/like/' + ${d.id}}" method="post" style="display:inline;">
-                <button type="submit">Like (<span th:text="${d.likes}"></span>)</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        }
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("error", error);
+        }
 
-<a href="/chefs">Back to Chefs</a>
+        model.addAttribute("dishes", dishes);
 
-</body>
-</html>
+        return "listDishes";
+    }
+
+    // SHOW ADD FORM
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("chefs", chefService.listAll());
+        return "dish-form";
+    }
+
+    // ADD DISH
+    @PostMapping("/add")
+    public String createDish(@RequestParam String dishId,
+                             @RequestParam String name,
+                             @RequestParam String cuisine,
+                             @RequestParam int preparationTime,
+                             @RequestParam Long chefId,
+                             @RequestParam Double rejting) {
+
+        dishService.create(dishId, name, cuisine, preparationTime, chefId, rejting);
+        return "redirect:/dishes";
+    }
+
+    // SHOW EDIT FORM
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+
+        Dish dish = dishService.findById(id);
+        if (dish == null) {
+            return "redirect:/dishes?error=DishNotFound";
+        }
+
+        model.addAttribute("dish", dish);
+        model.addAttribute("chefs", chefService.listAll());
+        return "dish-form";
+    }
+
+    // SAVE EDIT
+    @PostMapping("/edit/{id}")
+    public String editDish(@PathVariable Long id,
+                           @RequestParam String dishId,
+                           @RequestParam String name,
+                           @RequestParam String cuisine,
+                           @RequestParam int preparationTime,
+                           @RequestParam Long chefId) {
+
+        dishService.update(id, dishId, name, cuisine, preparationTime, chefId);
+        return "redirect:/dishes";
+    }
+
+    // DELETE
+    @PostMapping("/delete/{id}")
+    public String deleteDish(@PathVariable Long id) {
+        dishService.delete(id);
+        return "redirect:/dishes";
+    }
+
+    // LIKE
+    @PostMapping("/like/{id}")
+    public String likeDish(@PathVariable Long id) {
+        dishService.like(id);
+        return "redirect:/dishes";
+    }
+
+//    @PostMapping("/rating")
+//    public String filterByRating(@RequestParam double vrednost) {
+//        dishService.filterByRating(vrednost);
+//        return "redirect:/dishes";
+//    }
+}
