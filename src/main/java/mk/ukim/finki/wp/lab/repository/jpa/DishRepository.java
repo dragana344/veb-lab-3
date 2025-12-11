@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Long> {
     List<Dish> findAllByChef_Id(Long chefId);
+    List<Dish> findByRejtingGreaterThan(Double rejting);
 }
 
