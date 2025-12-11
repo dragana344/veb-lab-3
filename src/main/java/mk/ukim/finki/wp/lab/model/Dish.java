@@ -14,18 +14,20 @@ public class Dish {
     private String cuisine;
     private int preparationTime;
     private int likes;
+    private Double rejting;
 
     @ManyToOne
     private Chef chef;
 
     public Dish() {}
 
-    public Dish(String dishId, String name, String cuisine, int preparationTime) {
+    public Dish(String dishId, String name, String cuisine, int preparationTime, Double rejting) {
         this.dishId = dishId;
         this.name = name;
         this.cuisine = cuisine;
         this.preparationTime = preparationTime;
         this.likes = 0;
+        this.rejting = rejting;
     }
 
     public Long getId() { return id; }
@@ -39,6 +41,8 @@ public class Dish {
     public int getPreparationTime() { return preparationTime; }
 
     public int getLikes() { return likes; }
+
+    public Double getRejting() { return rejting; }
 
     public Chef getChef() { return chef; }
 
@@ -57,4 +61,6 @@ public class Dish {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void setRejting(Double rejting) { this.rejting = rejting; }
 }
