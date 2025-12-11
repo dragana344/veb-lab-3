@@ -9,9 +9,10 @@ public interface DishService {
     List<Dish> listAll();
 //    Dish findByDishId(String dishId);
     Dish findById(Long id);
-    Dish create(String dishId, String name, String cuisine, int preparationTime, Long chefId);
+    Dish create(String dishId, String name, String cuisine, int preparationTime, Long chefId, double rejting);
     Dish update(Long id, String dishId, String name, String cuisine, int preparationTime, Long chefId);
     void delete(Long id);
     void like(Long id);
     List<Dish> listByChef(Long chefId);
+    List<Dish> filterByRating(Double rating);
 }
