@@ -7,6 +7,7 @@ import mk.ukim.finki.wp.lab.repository.jpa.DishRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DishServiceImpl implements DishService{
@@ -36,8 +37,8 @@ public class DishServiceImpl implements DishService{
     }
 
     @Override
-    public Dish create(String dishId, String name, String cuisine, int preparationTime, Long chefId) {
-        Dish dish = new Dish(dishId, name, cuisine, preparationTime);
+    public Dish create(String dishId, String name, String cuisine, int preparationTime, Long chefId, double rejting) {
+        Dish dish = new Dish(dishId, name, cuisine, preparationTime, rejting);
         Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
         dish.setChef(chef);
@@ -93,4 +94,14 @@ public class DishServiceImpl implements DishService{
         return dishRepository.findAllByChef_Id(chefId);
     }
 
+    @Override
+    public List<Dish> filterByRating(Double rating){
+
+//        return dishRepository.findByRejtingGreaterThan(rating);
+
+        return dishRepository.findByRejtingGreaterThan(rating)
+                .stream()
+                .filter(d -> d.getRejting()>=rating)
+                .collect(Collectors.toList());
+    }
 }
