@@ -7,6 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 @RequestMapping("/dishes")
 public class DishController {
@@ -21,13 +24,26 @@ public class DishController {
 
     // LIST ALL DISHES
     @GetMapping
-    public String getDishesPage(@RequestParam(required = false) String error, Model model) {
+    public String getDishesPage(@RequestParam(required = false) String error, Model model,
+                                @RequestParam(required = false) Double rejting) {
 
+
+        List<Dish> dishes = new ArrayList<>();
+        if (rejting != null)
+        {
+            dishes = dishService.filterByRating(rejting);
+        }
+        else{
+
+            dishes = dishService.listAll();
+
+        }
         if (error != null && !error.isEmpty()) {
             model.addAttribute("error", error);
         }
 
-        model.addAttribute("dishes", dishService.listAll());
+        model.addAttribute("dishes", dishes);
+
         return "listDishes";
     }
 
@@ -44,9 +60,10 @@ public class DishController {
                              @RequestParam String name,
                              @RequestParam String cuisine,
                              @RequestParam int preparationTime,
-                             @RequestParam Long chefId) {
+                             @RequestParam Long chefId,
+                             @RequestParam Double rejting) {
 
-        dishService.create(dishId, name, cuisine, preparationTime, chefId);
+        dishService.create(dishId, name, cuisine, preparationTime, chefId, rejting);
         return "redirect:/dishes";
     }
 
@@ -90,4 +107,10 @@ public class DishController {
         dishService.like(id);
         return "redirect:/dishes";
     }
+
+//    @PostMapping("/rating")
+//    public String filterByRating(@RequestParam double vrednost) {
+//        dishService.filterByRating(vrednost);
+//        return "redirect:/dishes";
+//    }
 }
